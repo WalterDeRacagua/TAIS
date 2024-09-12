@@ -159,13 +159,18 @@ tuple<bool, int, T, T, bool>arbolAVL(const BinTree<T>& tree) {
         auto[esEquilibrado_izquierda, altura_izquierda, mayor_izquierda, menor_izquierda, esAVL_izquierda] = arbolAVL(tree.left());
         auto[esEquilibrado_derecha, altura_derecha, mayor_derecha, menor_derecha,esAVL_derecha] = arbolAVL(tree.right());
 
+        /*Calculamos la nueva altura*/
         int altura = 1 + max(altura_izquierda, altura_derecha);
+
         /*Verificar que sea equilibrado*/
         bool esEquilibrado = esEquilibrado_izquierda && esEquilibrado_derecha && abs(altura_izquierda - altura_derecha) <= 1;
+
         /*Verificar que sea AVL*/
-        bool esAVL = esAVL_izquierda && esAVL_derecha && tree.root()>mayor_izquierda && tree.root()<menor_derecha;
+        bool esAVL = esAVL_izquierda && esAVL_derecha && esEquilibrado&& tree.root()>=mayor_izquierda && tree.root()<=menor_derecha;
+
         /*Calcular nuevo mayor*/
         T mayor = max(tree.root(),max(mayor_izquierda, mayor_derecha));
+
         /*Calcular nuevo menor*/
         T menor = min(tree.root(),min(menor_izquierda,menor_derecha));
 
