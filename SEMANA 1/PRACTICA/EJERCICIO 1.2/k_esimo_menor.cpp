@@ -9,14 +9,20 @@
 //  Copyright (c) 2020 Alberto Verdejo
 //
 
-#ifndef TREESET_AVL_H_
-#define TREESET_AVL_H_
+/*@ <authors>
+ *
+ * Sergio Sánchez Carrasco, Usuario TAIS091 
+ *
+ *@ </authors> */
 
 #include <algorithm>
 #include <functional>
 #include <stack>
 #include <stdexcept>
 #include <utility>
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 
 template <class T, class Comparator = std::less<T>>
@@ -34,8 +40,13 @@ protected:
       T elem;
       Link iz, dr;
       int altura;
+
+      /*Nuevo atributo que se nos pide en el ejercicio. */
+      int tam_i;
+
+      /*Además, tenemos que añadir el atributo de tamaño al constructor.*/
       TreeNode(T const& e, Link i = nullptr, Link d = nullptr,
-               int alt = 1) : elem(e), iz(i), dr(d), altura(alt) {}
+               int alt = 1, int tam=1) : elem(e), iz(i), dr(d), altura(alt), tam_i(tam) {}
    };
 
    // puntero a la raíz de la estructura jerárquica de nodos
@@ -90,7 +101,35 @@ public:
       return borra(e, raiz);
    }
 
+   /* --- NUEVO MÉTODO A AÑADIR --- */
+   T const& kesimo(int k)const{
+      if (k<1||k>this->size())
+      {
+         throw std::domain_error("Fuera de rango");
+      }
+      /*Llamamos al método necesario para encontrar el elemento*/
+      return kesimo(this->raiz, k);
+   }
+
 protected:
+
+   T const& kesimo(Link a, int k)const{
+
+      int posicion_izquierdo = a->iz ? a->iz->tam_i :0;
+
+      if (k== posicion_izquierdo+1)
+      {
+         return a->elem;
+      }
+      else if (k <= posicion_izquierdo)
+      {
+         return kesimo(a->iz, k);
+      }
+      else{
+         /*k-posicion_izquierdo -1*/
+         return kesimo(a->dr, k -posicion_izquierdo -1);
+      }       
+   }
 
    void copia(Set const& other) {
       raiz = copia(other.raiz);
@@ -100,7 +139,7 @@ protected:
 
    static Link copia(Link a) {
       if (a == nullptr) return nullptr;
-      else return new TreeNode(a->elem, copia(a->iz), copia(a->dr), a->altura);
+      else return new TreeNode(a->elem, copia(a->iz), copia(a->dr), a->altura, a->tam_i);
    }
 
    static void libera(Link a) {
@@ -134,7 +173,10 @@ protected:
          crece = true;
       } else if (menor(e, a->elem)) {
          crece = inserta(e, a->iz);
-         if (crece) reequilibraDer(a);
+         if (crece){
+            reequilibraDer(a);
+            a->tam_i= a->iz ? a->iz->tam_i +1:1;
+         }
       } else if (menor(a->elem, e)) {
          crece = inserta(e, a->dr);
          if (crece) reequilibraIzq(a);
@@ -311,4 +353,78 @@ public:
 };
 
 
+/*@ <answer>
+
+ Escribe aquí un comentario general sobre la solución, explicando cómo
+ se resuelve el problema y cuál es el coste de la solución, en función
+ del tamaño del problema.
+
+ @ </answer> */
+
+
+// ================================================================
+// Escribe el código completo de tu solución aquí debajo
+// ================================================================
+//@ <answer>
+
+bool resuelveCaso() {
+
+   // leer los datos de la entrada
+   /*Creamos en Set vacío*/
+   Set<int>arbolAVL;
+   int values;
+   int num_buscar;
+   int num;
+   int valor_a_buscar;
+
+   cin >>values;
+
+   if (values ==0)
+      return false;
+
+   for (int i = 0; i < values; i++)
+   {
+      cin >>num;
+      arbolAVL.insert(num);//O(log(values)), logaritmico respecto al número de valores.
+   }
+
+   cin >> num_buscar;
+
+   for (int i = 0; i < num_buscar; i++)
+   {
+      try{
+         cin >> valor_a_buscar;
+         int encontrado=arbolAVL.kesimo(valor_a_buscar);
+         cout << encontrado << endl;
+      }catch(std::domain_error & e){
+         cout << "??\n";         
+      }
+   }
+   
+   // resolver el caso posiblemente llamando a otras funciones
+
+   cout << "---" <<endl;
+   // escribir la solución
+
+   return true;
+}
+
+//@ </answer>
+//  Lo que se escriba dejado de esta línea ya no forma parte de la solución.
+
+int main() {
+   // ajustes para que cin extraiga directamente de un fichero
+#ifndef DOMJUDGE
+   std::ifstream in("casos.txt");
+   auto cinbuf = std::cin.rdbuf(in.rdbuf());
 #endif
+
+   while (resuelveCaso());
+
+   // para dejar todo como estaba al principio
+#ifndef DOMJUDGE
+   std::cin.rdbuf(cinbuf);
+   system("PAUSE");
+#endif
+   return 0;
+}
