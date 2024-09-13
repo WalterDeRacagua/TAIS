@@ -139,42 +139,35 @@ Inicialmente había pensado en que devolviera un par que dijera si es equilibrad
 Pero voy a usar mejor una tupla que diga si es equilibrado, si es raquitico y su altura
 */
 
-/*el primer parametro es para saber si es equilibrado,
+/*el primer parametro es para saber si es AVL,
 el segundo es para la altura
 el tercero es el nodo mayor
 el cuarto es el nodo menor
-el quinto es para saber si es AVL
 */
 
 template <typename T>
-tuple<bool, int, T, T, bool>arbolAVL(const BinTree<T>& tree) {
+tuple<bool, int, T, T>arbolAVL(const BinTree<T>& tree) {
 
     if (tree.empty())
     {
-        return { true,0,numeric_limits<T>::min(), numeric_limits<T>::max(), true};
+        return { true,0,T(), T()};
     }   
     else
     {
 
-        auto[esEquilibrado_izquierda, altura_izquierda, mayor_izquierda, menor_izquierda, esAVL_izquierda] = arbolAVL(tree.left());
-        auto[esEquilibrado_derecha, altura_derecha, mayor_derecha, menor_derecha,esAVL_derecha] = arbolAVL(tree.right());
+        auto[esAVL_izquierda,altura_izquierda, mayor_izquierda, menor_izquierda] = arbolAVL(tree.left());
+        auto[esAVL_derecha, altura_derecha, mayor_derecha, menor_derecha] = arbolAVL(tree.right());
 
+        T menor = tree.left().empty() ? tree.root() :menor_izquierda;
+        T mayor = tree.right().empty() ? tree.root() : mayor_derecha;
+        
         /*Calculamos la nueva altura*/
         int altura = 1 + max(altura_izquierda, altura_derecha);
 
-        /*Verificar que sea equilibrado*/
-        bool esEquilibrado = esEquilibrado_izquierda && esEquilibrado_derecha && abs(altura_izquierda - altura_derecha) <= 1;
-
         /*Verificar que sea AVL*/
-        bool esAVL = esAVL_izquierda && esAVL_derecha && esEquilibrado&& tree.root()>=mayor_izquierda && tree.root()<=menor_derecha;
+        bool esAVL = (tree.left().empty()|| tree.root()> mayor_izquierda)&& (tree.right().empty()|| tree.root()< menor_derecha);
 
-        /*Calcular nuevo mayor*/
-        T mayor = max(tree.root(),max(mayor_izquierda, mayor_derecha));
-
-        /*Calcular nuevo menor*/
-        T menor = min(tree.root(),min(menor_izquierda,menor_derecha));
-
-        return { esEquilibrado,altura,mayor,menor,esAVL};
+        return {(esAVL && esAVL_izquierda&& esAVL_derecha && abs(altura_izquierda-altura_derecha)<2),altura,mayor,menor};
     }
 }
 
@@ -204,7 +197,6 @@ bool resuelveCaso() {
    // leer los datos de la entrada
 
     char data_type;
-    bool esAVL;
 
     cin >> data_type;
 
@@ -214,8 +206,8 @@ bool resuelveCaso() {
     if (data_type== 'N')
     {
         BinTree<int> tree_int = read_tree<int>(cin);
-        auto[esEquilibrado, altura, mayor,menor, esAVL] = arbolAVL(tree_int);
-        if (esAVL&& esEquilibrado)
+        auto[esAVL, altura, mayor,menor] = arbolAVL(tree_int);
+        if (esAVL)
         {
             cout << "SI\n";
         }
@@ -227,9 +219,9 @@ bool resuelveCaso() {
     else if (data_type=='P')
     {
         BinTree<string> tree_string = read_tree<string>(cin);
-        auto[esEquilibrado, altura, mayor,menor,esAVL] = arbolAVL(tree_string);
+        auto[esAVL, altura, mayor,menor] = arbolAVL(tree_string);
         
-        if (esAVL&& esEquilibrado)
+        if (esAVL)
         {
             cout << "SI\n";
         }
