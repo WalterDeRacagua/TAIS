@@ -118,14 +118,13 @@ protected:
          throw std::domain_error("El árbol está vacío");
       }
 
-      int posicion_izquierdo = a->iz ? a->iz->tam_i : 0;
 
-      if (k == posicion_izquierdo + 1) {
+      if (k == a->tam_i) {
          return a->elem; // El k-ésimo elemento es el actual
-      } else if (k <= posicion_izquierdo) {
+      } else if (k < a->tam_i) {
          return kesimo(a->iz, k); // Buscar en el subárbol izquierdo
       } else {
-         return kesimo(a->dr, k - posicion_izquierdo - 1); // Buscar en el subárbol derecho
+         return kesimo(a->dr, k - a->tam_i); // Buscar en el subárbol derecho
       }
    }
 
@@ -173,8 +172,8 @@ protected:
       } else if (menor(e, a->elem)) {
          crece = inserta(e, a->iz);
          if (crece){
-            reequilibraDer(a);
             ++a->tam_i;
+            reequilibraDer(a);
          }
       } else if (menor(a->elem, e)) {
          crece = inserta(e, a->dr);
@@ -195,7 +194,7 @@ protected:
       r1->dr = r2;
       r2->altura = std::max(altura(r2->iz), altura(r2->dr)) + 1;
       r1->altura = std::max(altura(r1->iz), altura(r1->dr)) + 1;
-      r1->tam_i = r2->tam_i -r1->tam_i;
+      r2->tam_i = r2->tam_i -r1->tam_i;
       r2 = r1;
    }
 
