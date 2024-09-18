@@ -112,24 +112,23 @@ public:
    }
 
 protected:
-
-   T const& kesimo(Link a, int k)const{
-
-      int posicion_izquierdo = a->iz ? a->iz->tam_i :0;
-
-      if (k== posicion_izquierdo+1)
-      {
-         return a->elem;
+   T const& kesimo(Link a, int k) const {
+      
+      if (a == nullptr) {
+         throw std::domain_error("El árbol está vacío");
       }
-      else if (k <= posicion_izquierdo)
-      {
-         return kesimo(a->iz, k);
+
+      int posicion_izquierdo = a->iz ? a->iz->tam_i : 0;
+
+      if (k == posicion_izquierdo + 1) {
+         return a->elem; // El k-ésimo elemento es el actual
+      } else if (k <= posicion_izquierdo) {
+         return kesimo(a->iz, k); // Buscar en el subárbol izquierdo
+      } else {
+         return kesimo(a->dr, k - posicion_izquierdo - 1); // Buscar en el subárbol derecho
       }
-      else{
-         /*k-posicion_izquierdo -1*/
-         return kesimo(a->dr, k -posicion_izquierdo -1);
-      }       
    }
+
 
    void copia(Set const& other) {
       raiz = copia(other.raiz);
@@ -175,7 +174,7 @@ protected:
          crece = inserta(e, a->iz);
          if (crece){
             reequilibraDer(a);
-            a->tam_i= a->iz ? a->iz->tam_i +1:1;
+            ++a->tam_i;
          }
       } else if (menor(a->elem, e)) {
          crece = inserta(e, a->dr);
@@ -196,6 +195,7 @@ protected:
       r1->dr = r2;
       r2->altura = std::max(altura(r2->iz), altura(r2->dr)) + 1;
       r1->altura = std::max(altura(r1->iz), altura(r1->dr)) + 1;
+      r1->tam_i = r2->tam_i -r1->tam_i;
       r2 = r1;
    }
 
@@ -205,6 +205,7 @@ protected:
       r2->iz = r1;
       r1->altura = std::max(altura(r1->iz), altura(r1->dr)) + 1;
       r2->altura = std::max(altura(r2->iz), altura(r2->dr)) + 1;
+      r2->tam_i = r1->tam_i + r2->tam_i;
       r1 = r2;
    }
 
@@ -394,7 +395,7 @@ bool resuelveCaso() {
    {
       try{
          cin >> valor_a_buscar;
-         int encontrado=arbolAVL.kesimo(valor_a_buscar);
+         int encontrado=arbolAVL.kesimo(valor_a_buscar);//O(log(arbolAvl.size()))
          cout << encontrado << endl;
       }catch(std::domain_error & e){
          cout << "??\n";         
