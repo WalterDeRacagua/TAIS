@@ -1,4 +1,3 @@
-
 /*@ <authors>
  *
  *Sergio Sánchez Carrasco.
@@ -14,75 +13,72 @@ using namespace std;
 struct Caja 
 {
     int num_caja;
-    int momento_libre=0;
+    int momento_libre = 0;
+
+    // Constructor que inicializa los miembros
+    Caja(int num, int momento) : num_caja(num), momento_libre(momento) {}
+
+    // Operador para hacer funcionar la priority_queue correctamente
     bool operator <(const Caja &otra) const
     {
-        return momento_libre > otra.momento_libre || (momento_libre==otra.momento_libre&& this->num_caja < otra.num_caja);
+        return momento_libre > otra.momento_libre || 
+               (momento_libre == otra.momento_libre && this->num_caja > otra.num_caja);
     }    
 };
 
-
-
-
 /*@ <answer>
 
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ El problema se resuelve utilizando una cola de prioridad para gestionar el
+ momento en que cada caja estará libre. Para cada cliente, se asigna la caja
+ que esté disponible más pronto y, en caso de empate, la caja con el número menor.
+ El coste es O(C log N), donde C es el número de clientes y N el número de cajas.
 
  @ </answer> */
-
 
 // ================================================================
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
-//@ <answer>
+ //@ <answer>
 
 bool resuelveCaso() {
 
-    int num_cajas;//N
-    int num_clientes_esperando;//C
+    int num_cajas; // N
+    int num_clientes_esperando; // C
     priority_queue<Caja> cajas;
 
-
-   // leer los datos de la entrada
-
+    // Leer los datos de la entrada
     cin >> num_cajas >> num_clientes_esperando;
 
-    if (num_cajas == 0 && num_clientes_esperando==0)
+    if (num_cajas == 0 && num_clientes_esperando == 0)
         return false;
 
-    for (int i = 0; i < num_cajas; i++)
+    // Inicializar las cajas con número de caja y momento libre en 0
+    for (int i = 0; i < num_cajas; i++) 
     {
-        cajas.emplace(i,0);
-        // cajas.push({i,0}); Es lo mismo
+        cajas.emplace(i + 1, 0);  // Las cajas van numeradas de 1 a N
     }
     
     for (int i = 0; i < num_clientes_esperando; i++)
     {
         int tiempo;
-        cin>> tiempo;
-        auto[numCaja,momento]= cajas.top();//Cogemos los dos campos del struct
-        //Eliminamos del monticulo 
+        cin >> tiempo;
+        Caja caja_actual = cajas.top(); // Obtener la caja con el menor momento libre
         cajas.pop();
-        // La volvemos a meter.
-        cajas.push({numCaja, momento+tiempo});
+        // Actualizar el momento libre y volver a insertar en la cola
+        cajas.emplace(caja_actual.num_caja, caja_actual.momento_libre + tiempo);
     }
     
+    // Imprimir el número de la caja que estará disponible más pronto
     cout << cajas.top().num_caja << "\n";
 
-   // resolver el caso posiblemente llamando a otras funciones
-
-   // escribir la solución
-
-   return true;
+    return true;
 }
 
-//@ </answer>
+ //@ </answer>
 //  Lo que se escriba dejado de esta línea ya no forma parte de la solución.
 
 int main() {
-   // ajustes para que cin extraiga directamente de un fichero
+   // Ajustes para que cin extraiga directamente de un fichero
 #ifndef DOMJUDGE
    std::ifstream in("casos.txt");
    auto cinbuf = std::cin.rdbuf(in.rdbuf());
@@ -90,7 +86,7 @@ int main() {
 
    while (resuelveCaso());
 
-   // para dejar todo como estaba al principio
+   // Para dejar todo como estaba al principio
 #ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
    system("PAUSE");
