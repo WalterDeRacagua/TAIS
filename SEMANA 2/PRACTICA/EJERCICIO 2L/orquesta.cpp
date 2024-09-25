@@ -47,7 +47,8 @@ void reparto_partituras(priority_queue<Orquesta> & monticulo_orquesta, int & n){
         auto instrumento = monticulo_orquesta.top();
         monticulo_orquesta.pop();
         instrumento.partituras++;
-        instrumento.coeficiente = ceil(double(instrumento.num_instrumentos) /instrumento.partituras);
+        instrumento.coeficiente = ceil(double(instrumento.num_instrumentos) /instrumento.partituras);//Coge la cota superior. Si hay 2.5 coge 3.
+        // a%b ? 1:0 
         monticulo_orquesta.push(instrumento);
         n--;
     }
