@@ -1,7 +1,7 @@
 
 /*@ <authors>
  *
- * Sergio, Sánchez Carrasco y usuario del juez (TAIS0) de los autores de la solución.
+ * Sergio, Sánchez Carrasco TAIS091 
  *
  *@ </authors> */
 
