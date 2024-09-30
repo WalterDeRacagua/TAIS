@@ -8,6 +8,7 @@
 #include <fstream>
 #include <queue>
 #include <math.h>
+#include <unordered_set>
 
 using namespace std;
 
@@ -26,66 +27,77 @@ using namespace std;
  // ================================================================
  //@ <answer>
 
-void vuelo_drones(priority_queue<int>& cajon9V, priority_queue<int>& cajon1V, int N) {
+void vuelo_drones(priority_queue<int>& cajon9V, priority_queue<int>& cajon1V, int N) { //O(N*max(logB,logA))
 
-    int tiempo_semana = 0, drones=0;
+    int tiempo_semana = 0;
+    //Utilizamos un multiset en vez de un set, porque sino si metemos dos pilas de 2 mins, las vamos perdiendo. Para eso usamos los multiconjuntos.
+    unordered_multiset<int> cajon_temporal_1; //O(1)
+    unordered_multiset<int> cajon_temporal_9; //O(1)
 
-    while (cajon1V.size() != 0 && cajon9V.size() != 0)
+
+    while (!cajon1V.empty() && !cajon9V.empty())//O(1) las operaciones de vaciar tienen coste constante.
     {
         for (int i = 0; i < N; i++)
         {
-            if (cajon1V.size() != 0 && cajon9V.size() != 0)//Mientras que ninguno de los cajones de pilas sea 0
+            if (cajon1V.empty() || cajon9V.empty())//Mientras que ninguno de los cajones de pilas sea 0
             {
-                tiempo_semana += min(cajon1V.top(), cajon9V.top());
-                if (cajon9V.top() > cajon1V.top())//Si se gasta toda la de 1.5V
-                {
-                    auto bateria_1 = cajon1V.top();
-                    cajon1V.pop();
-                    auto bateria_9 = cajon9V.top();
-                    cajon9V.pop();
-                    int tiempo_nuevo = abs(bateria_1 - bateria_9);
-                    bateria_9 = tiempo_nuevo;
-                    cajon9V.push(bateria_9);
-                }
-                else if (cajon9V.top() < cajon1V.top())//Si se gasta toda la de 1.5V
-                {
-                    auto bateria_1 = cajon1V.top();
-                    cajon1V.pop();
-                    auto bateria_9 = cajon9V.top();
-                    cajon9V.pop();
-                    int tiempo_nuevo = abs(bateria_1 - bateria_9);
-                    bateria_1 = tiempo_nuevo;
-                    cajon1V.push(bateria_1);
-                }
-                else {
-                    cajon1V.pop();
-                    cajon9V.pop();
-                }
-                drones++;
-            }
-            else {
                 break;
             }
+            tiempo_semana += min(cajon1V.top(), cajon9V.top());//O(1)
+            if (cajon9V.top() > cajon1V.top())//Si se gasta toda la de 1.5V
+            {
+                auto bateria_1 = cajon1V.top();//O(1)
+                cajon1V.pop();//O(log(B))
+                auto bateria_9 = cajon9V.top();//O(1)
+                cajon9V.pop();//O(log(A))
+                int tiempo_nuevo = abs(bateria_1 - bateria_9);
+                bateria_9 = tiempo_nuevo;
+                cajon_temporal_9.insert(bateria_9);//O(1) en promedio
+            }
+            else if (cajon9V.top() < cajon1V.top())//Si se gasta toda la de 1.5V
+            {
+                auto bateria_1 = cajon1V.top();//O(1)
+                cajon1V.pop();//O(log B)
+                auto bateria_9 = cajon9V.top();//O(1)
+                cajon9V.pop();//O(log A)
+                int tiempo_nuevo = abs(bateria_1 - bateria_9);
+                bateria_1 = tiempo_nuevo;
+                cajon_temporal_1.insert(bateria_1);//O(1) ya que es un unordered_multiset.
+            }
+            else {
+                cajon1V.pop();//O(log B)
+                cajon9V.pop();//O(log A)
+            }
         }
-        if (drones == N)
+        for (int valor : cajon_temporal_1)
         {
-            drones=0;
-            cout << tiempo_semana << " ";
+            cajon1V.push(valor);//O(log B) por cada inserción
         }
+
+        for (int valor : cajon_temporal_9)
+        {
+            cajon9V.push(valor);//O(log A) por cada intersación 
+        }
+
+        cajon_temporal_1.clear();//O(1)
+        cajon_temporal_9.clear();//O(1)
+
+        cout << tiempo_semana << " ";
+        
         tiempo_semana = 0;
     }
 }
+
 
 bool resuelveCaso() {
     // leer los datos de la entrada
 
     int N, A, B; //Número de drones, número de pilas de 9V y número de pilas de 1.5V
 
+    cin >> N >> A >> B;
 
     if (cin.eof())  // fin de la entrada
         return false;
-
-    cin >> N >> A >> B;
 
     priority_queue<int> cajon_9V;
     priority_queue<int> cajon_1V;//Aunque es de 1.5V
