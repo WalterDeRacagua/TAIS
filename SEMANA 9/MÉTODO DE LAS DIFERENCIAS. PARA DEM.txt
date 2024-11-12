@@ -1,0 +1,14 @@
+MÉTODO DE LAS DIFERENCIAS. PARA DEMOSTRACIONES VORACES.
+
+Para el ejercicio 8.L
+
+Voraces = etapas distintas en las que hacemos algo.
+Solución voraz (Svor) = v1 v2 … vk-1 vk vk+1....vn
+Solución válida (Sval) = v1 v2 … vk-1 Sk Sk+1... Sn
+
+Difieren en la posición K ya que la solución voraz tiene vk y la solución válida tiene un valor sk. No es posible lo siguiente:
+
+	- Sk< Vk porque Existiría un l < k tal que vl+sk = P Siendo P la cantidad problemática que no podemos obtener.
+
+	
+	-Sk > Vk no puede ser porque empeoraría el coste.
